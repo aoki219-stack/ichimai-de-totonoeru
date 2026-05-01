@@ -1,0 +1,454 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>一枚で整える β版</title>
+  <style>
+    :root {
+      --bg: #f7f3ea;
+      --card: #fffaf1;
+      --text: #2d2a26;
+      --muted: #746b5f;
+      --line: #e2d7c6;
+      --accent: #8b6f47;
+      --accent-dark: #6d5535;
+      --soft: #efe5d4;
+      --danger: #9b3d2e;
+      --shadow: 0 12px 30px rgba(67, 49, 28, 0.10);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(255,255,255,.75), transparent 32%),
+        linear-gradient(180deg, #fbf7ef 0%, var(--bg) 100%);
+      line-height: 1.8;
+    }
+
+    .wrap {
+      width: min(960px, 92vw);
+      margin: 0 auto;
+      padding: 34px 0 56px;
+    }
+
+    header {
+      margin-bottom: 24px;
+      padding: 28px 24px;
+      background: rgba(255,250,241,.72);
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+    }
+
+    .label {
+      display: inline-block;
+      margin-bottom: 10px;
+      padding: 4px 12px;
+      border-radius: 999px;
+      background: var(--soft);
+      color: var(--accent-dark);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: .04em;
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: clamp(30px, 7vw, 48px);
+      line-height: 1.2;
+      letter-spacing: .02em;
+    }
+
+    .lead {
+      margin: 0;
+      color: var(--muted);
+      font-size: 16px;
+    }
+
+    .note {
+      margin-top: 14px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: #fff;
+      color: var(--muted);
+      font-size: 14px;
+      border: 1px dashed var(--line);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 18px;
+    }
+
+    @media (min-width: 900px) {
+      .grid {
+        grid-template-columns: 0.95fr 1.05fr;
+        align-items: start;
+      }
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 20px;
+    }
+
+    h2 {
+      margin: 0 0 14px;
+      font-size: 22px;
+    }
+
+    label {
+      display: block;
+      margin: 16px 0 6px;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .hint {
+      margin: 0 0 6px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    select,
+    textarea,
+    input[type="text"] {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fffefb;
+      color: var(--text);
+      padding: 12px 13px;
+      font: inherit;
+      outline: none;
+    }
+
+    textarea { min-height: 126px; resize: vertical; }
+
+    select:focus,
+    textarea:focus,
+    input[type="text"]:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(139,111,71,.14);
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    button {
+      appearance: none;
+      border: 0;
+      border-radius: 999px;
+      padding: 11px 16px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      background: var(--accent);
+      color: white;
+      transition: transform .08s ease, opacity .15s ease, background .15s ease;
+    }
+
+    button:hover { background: var(--accent-dark); }
+    button:active { transform: translateY(1px); }
+    button:disabled { opacity: .55; cursor: not-allowed; }
+
+    .secondary {
+      background: #efe5d4;
+      color: var(--accent-dark);
+    }
+    .secondary:hover { background: #e5d6bf; }
+
+    .ghost {
+      background: transparent;
+      color: var(--accent-dark);
+      border: 1px solid var(--line);
+    }
+    .ghost:hover { background: #fff; }
+
+    .result-block {
+      margin-top: 14px;
+      padding: 16px;
+      border: 1px solid var(--line);
+      background: #fffefb;
+      border-radius: 16px;
+    }
+
+    .result-title {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .result-title h3 {
+      margin: 0;
+      font-size: 16px;
+    }
+
+    .copy-btn {
+      padding: 7px 11px;
+      font-size: 13px;
+      background: #efe5d4;
+      color: var(--accent-dark);
+    }
+
+    .output {
+      white-space: pre-wrap;
+      min-height: 46px;
+    }
+
+    .loading {
+      color: var(--muted);
+    }
+
+    .error {
+      color: var(--danger);
+      font-weight: 700;
+      white-space: pre-wrap;
+    }
+
+    details {
+      margin-top: 18px;
+      padding: 14px 16px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: 700;
+      color: var(--accent-dark);
+    }
+
+    .small {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    footer {
+      margin-top: 24px;
+      color: var(--muted);
+      font-size: 13px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <span class="label">β版｜写真アップロードなし</span>
+      <h1>一枚で整える</h1>
+      <p class="lead">写真を見て、一言残す。あとはAIが、伝わる文章に整える。</p>
+      <p class="note">※この試作版では写真はアップロードしません。スマホやパソコンの写真を見ながら、残したいことを一言で入力してください。</p>
+    </header>
+
+    <main class="grid">
+      <section class="card">
+        <h2>入力</h2>
+
+        <label for="scene">業種・場面</label>
+        <select id="scene">
+          <option>空手道場</option>
+          <option>教室・習い事</option>
+          <option>美容院</option>
+          <option>整体・施術院</option>
+          <option>飲食店</option>
+          <option>日常の記録</option>
+          <option>その他</option>
+        </select>
+
+        <label for="audience">誰に向けて書きますか？</label>
+        <select id="audience">
+          <option>保護者向け</option>
+          <option>生徒向け</option>
+          <option>体験希望者向け</option>
+          <option>初めて見る人向け</option>
+          <option>お客様向け</option>
+          <option>Instagram向け</option>
+          <option>note向け</option>
+          <option>自分用メモ</option>
+        </select>
+
+        <label for="tone">文章の雰囲気</label>
+        <select id="tone">
+          <option>やさしく</option>
+          <option>短め</option>
+          <option>少し熱く</option>
+          <option>学び多め</option>
+          <option>自然な感じ</option>
+          <option>先生のひとこと風</option>
+          <option>宣伝っぽくない感じ</option>
+        </select>
+
+        <label for="memo">今日のひとこと</label>
+        <p class="hint">写真を見ながら、残しておきたいことを一言で書いてください。</p>
+        <textarea id="memo" placeholder="例：初めて体験に来た子が、少し緊張しながらも最後まで参加できました。"></textarea>
+
+        <div class="actions">
+          <button id="generateBtn">文章を整える</button>
+          <button class="ghost" id="clearBtn" type="button">クリア</button>
+        </div>
+
+        <details>
+          <summary>保存のおすすめ</summary>
+          <p class="small">作った文章は、Google Keepに保存しておくと便利です。写真を貼って、生成された文章を下に残しておけば、あとから見返しやすくなります。</p>
+          <p class="small">ただし、大切な文章はGoogleドキュメントにもコピーしておくのがおすすめです。Keepは気軽な一時保管場所、Googleドキュメントは長期保存場所として使うと安心です。</p>
+        </details>
+      </section>
+
+      <section class="card">
+        <h2>出力</h2>
+        <div id="status" class="small">ここに生成結果が表示されます。</div>
+        <div id="error" class="error"></div>
+
+        <div class="result-block">
+          <div class="result-title">
+            <h3>Instagram投稿文</h3>
+            <button class="copy-btn" data-copy="postText">コピー</button>
+          </div>
+          <div id="postText" class="output"></div>
+        </div>
+
+        <div class="result-block">
+          <div class="result-title">
+            <h3>写真に添える一言</h3>
+            <button class="copy-btn" data-copy="shortLine">コピー</button>
+          </div>
+          <div id="shortLine" class="output"></div>
+        </div>
+
+        <div class="result-block">
+          <div class="result-title">
+            <h3>ハッシュタグ</h3>
+            <button class="copy-btn" data-copy="hashtags">コピー</button>
+          </div>
+          <div id="hashtags" class="output"></div>
+        </div>
+
+        <div class="result-block">
+          <div class="result-title">
+            <h3>Google Keep用まとめ</h3>
+            <button class="copy-btn" data-copy="keepText">Google Keep用にコピー</button>
+          </div>
+          <div id="keepText" class="output"></div>
+        </div>
+      </section>
+    </main>
+
+    <footer>一枚で整える β版｜余白人</footer>
+  </div>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+
+    const generateBtn = $('generateBtn');
+    const clearBtn = $('clearBtn');
+    const statusEl = $('status');
+    const errorEl = $('error');
+
+    function todayText() {
+      const d = new Date();
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}/${m}/${day}`;
+    }
+
+    function setOutput(data) {
+      $('postText').textContent = data.postText || '';
+      $('shortLine').textContent = data.shortLine || '';
+      $('hashtags').textContent = data.hashtags || '';
+      $('keepText').textContent = data.keepText || '';
+    }
+
+    function buildKeepText({ scene, audience, tone, memo, postText, shortLine, hashtags }) {
+      return `【一枚で整える｜今日の記録】\n\n日付：${todayText()}\n場面：${scene}\n対象：${audience}\n雰囲気：${tone}\n\n写真：\n※ここに写真を貼る\n\n今日のひとこと：\n${memo}\n\nInstagram投稿文：\n${postText}\n\n写真に添える一言：\n${shortLine}\n\nハッシュタグ：\n${hashtags}\n\n投稿状況：\n□ 未投稿\n□ Instagram投稿済み\n□ note投稿済み\n□ Googleドキュメント保存済み\n□ 保留\n\nメモ：`;
+    }
+
+    async function copyText(id, button) {
+      const text = $(id).textContent.trim();
+      if (!text) return;
+      await navigator.clipboard.writeText(text);
+      const original = button.textContent;
+      button.textContent = 'コピーしました';
+      setTimeout(() => button.textContent = original, 1200);
+    }
+
+    document.querySelectorAll('[data-copy]').forEach((button) => {
+      button.addEventListener('click', () => copyText(button.dataset.copy, button));
+    });
+
+    clearBtn.addEventListener('click', () => {
+      $('memo').value = '';
+      setOutput({});
+      statusEl.textContent = 'ここに生成結果が表示されます。';
+      errorEl.textContent = '';
+    });
+
+    generateBtn.addEventListener('click', async () => {
+      const scene = $('scene').value;
+      const audience = $('audience').value;
+      const tone = $('tone').value;
+      const memo = $('memo').value.trim();
+
+      errorEl.textContent = '';
+
+      if (!memo) {
+        errorEl.textContent = '今日のひとことを入力してください。';
+        return;
+      }
+
+      generateBtn.disabled = true;
+      statusEl.textContent = '文章を整えています…';
+      statusEl.className = 'small loading';
+      setOutput({});
+
+      try {
+        const response = await fetch('/api/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ scene, audience, tone, memo })
+        });
+
+        if (!response.ok) {
+          throw new Error('生成に失敗しました。Workerの設定やAPIキーを確認してください。');
+        }
+
+        const data = await response.json();
+        const keepText = buildKeepText({ scene, audience, tone, memo, ...data });
+
+        setOutput({
+          postText: data.postText,
+          shortLine: data.shortLine,
+          hashtags: data.hashtags,
+          keepText
+        });
+
+        statusEl.textContent = '生成できました。必要な部分をコピーして使ってください。';
+        statusEl.className = 'small';
+      } catch (err) {
+        errorEl.textContent = err.message || 'エラーが発生しました。';
+        statusEl.textContent = '';
+      } finally {
+        generateBtn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
