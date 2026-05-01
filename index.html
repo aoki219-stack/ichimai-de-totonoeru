@@ -39,11 +39,12 @@
 
     header {
       margin-bottom: 24px;
-      padding: 28px 24px;
+      padding: 32px 24px;
       background: rgba(255,250,241,.72);
       border: 1px solid var(--line);
       border-radius: 28px;
       box-shadow: var(--shadow);
+      text-align: center;
     }
 
     .label {
@@ -72,7 +73,8 @@
     }
 
     .note {
-      margin-top: 14px;
+      margin: 14px auto 0;
+      max-width: 760px;
       padding: 12px 14px;
       border-radius: 14px;
       background: #fff;
@@ -145,15 +147,17 @@
     .actions {
       display: flex;
       flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 18px;
+      justify-content: center;
+      align-items: center;
+      gap: 12px;
+      margin-top: 20px;
     }
 
     button {
       appearance: none;
       border: 0;
       border-radius: 999px;
-      padding: 11px 16px;
+      padding: 12px 18px;
       font: inherit;
       font-weight: 700;
       cursor: pointer;
@@ -165,6 +169,16 @@
     button:hover { background: var(--accent-dark); }
     button:active { transform: translateY(1px); }
     button:disabled { opacity: .55; cursor: not-allowed; }
+
+    .primary-action {
+      min-width: 180px;
+      font-size: 16px;
+      box-shadow: 0 8px 18px rgba(109, 85, 53, .18);
+    }
+
+    .clear-action {
+      min-width: 112px;
+    }
 
     .secondary {
       background: #efe5d4;
@@ -201,7 +215,7 @@
     }
 
     .copy-btn {
-      padding: 7px 11px;
+      padding: 8px 12px;
       font-size: 13px;
       background: #efe5d4;
       color: var(--accent-dark);
@@ -210,6 +224,31 @@
     .output {
       white-space: pre-wrap;
       min-height: 46px;
+    }
+
+    .section-head {
+      text-align: center;
+      margin-bottom: 14px;
+    }
+
+    .section-head h2 {
+      margin-bottom: 4px;
+    }
+
+    .note-output {
+      min-height: 180px;
+    }
+
+    .keep-copy-box {
+      text-align: center;
+    }
+
+    .keep-copy-box p {
+      margin: 0 0 12px;
+    }
+
+    .keep-main-btn {
+      min-width: 220px;
     }
 
     .loading {
@@ -260,7 +299,10 @@
 
     <main class="grid">
       <section class="card">
-        <h2>入力</h2>
+        <div class="section-head">
+          <h2>入力</h2>
+          <p class="small">写真を見ながら、一言だけ入れてください。</p>
+        </div>
 
         <label for="scene">業種・場面</label>
         <select id="scene">
@@ -301,8 +343,8 @@
         <textarea id="memo" placeholder="例：初めて体験に来た子が、少し緊張しながらも最後まで参加できました。"></textarea>
 
         <div class="actions">
-          <button id="generateBtn">文章を整える</button>
-          <button class="ghost" id="clearBtn" type="button">クリア</button>
+          <button class="primary-action" id="generateBtn">文章を整える</button>
+          <button class="ghost clear-action" id="clearBtn" type="button">クリア</button>
         </div>
 
         <details>
@@ -313,8 +355,10 @@
       </section>
 
       <section class="card">
-        <h2>出力</h2>
-        <div id="status" class="small">ここに生成結果が表示されます。</div>
+        <div class="section-head">
+          <h2>出力</h2>
+          <p id="status" class="small">ここに生成結果が表示されます。</p>
+        </div>
         <div id="error" class="error"></div>
 
         <div class="result-block">
@@ -323,6 +367,14 @@
             <button class="copy-btn" data-copy="postText">コピー</button>
           </div>
           <div id="postText" class="output"></div>
+        </div>
+
+        <div class="result-block">
+          <div class="result-title">
+            <h3>note用文章</h3>
+            <button class="copy-btn" data-copy="noteText">コピー</button>
+          </div>
+          <div id="noteText" class="output note-output"></div>
         </div>
 
         <div class="result-block">
@@ -341,12 +393,11 @@
           <div id="hashtags" class="output"></div>
         </div>
 
-        <div class="result-block">
-          <div class="result-title">
-            <h3>Google Keep用まとめ</h3>
-            <button class="copy-btn" data-copy="keepText">Google Keep用にコピー</button>
-          </div>
-          <div id="keepText" class="output"></div>
+        <div class="result-block keep-copy-box">
+          <h3>Google Keep保存用</h3>
+          <p class="small">投稿文・note用文章・一言・ハッシュタグをまとめてクリップボードに入れます。</p>
+          <button class="copy-btn keep-main-btn" data-copy="keepText">Google Keep用にコピー</button>
+          <div id="keepText" class="output" hidden></div>
         </div>
       </section>
     </main>
@@ -372,13 +423,14 @@
 
     function setOutput(data) {
       $('postText').textContent = data.postText || '';
+      $('noteText').textContent = data.noteText || '';
       $('shortLine').textContent = data.shortLine || '';
       $('hashtags').textContent = data.hashtags || '';
       $('keepText').textContent = data.keepText || '';
     }
 
-    function buildKeepText({ scene, audience, tone, memo, postText, shortLine, hashtags }) {
-      return `【一枚で整える｜今日の記録】\n\n日付：${todayText()}\n場面：${scene}\n対象：${audience}\n雰囲気：${tone}\n\n写真：\n※ここに写真を貼る\n\n今日のひとこと：\n${memo}\n\nInstagram投稿文：\n${postText}\n\n写真に添える一言：\n${shortLine}\n\nハッシュタグ：\n${hashtags}\n\n投稿状況：\n□ 未投稿\n□ Instagram投稿済み\n□ note投稿済み\n□ Googleドキュメント保存済み\n□ 保留\n\nメモ：`;
+    function buildKeepText({ scene, audience, tone, memo, postText, noteText, shortLine, hashtags }) {
+      return `【一枚で整える｜今日の記録】\n\n日付：${todayText()}\n場面：${scene}\n対象：${audience}\n雰囲気：${tone}\n\n写真：\n※ここに写真を貼る\n\n今日のひとこと：\n${memo}\n\nInstagram投稿文：\n${postText}\n\nnote用文章：\n${noteText}\n\n写真に添える一言：\n${shortLine}\n\nハッシュタグ：\n${hashtags}\n\n投稿状況：\n□ 未投稿\n□ Instagram投稿済み\n□ note投稿済み\n□ Googleドキュメント保存済み\n□ 保留\n\nメモ：`;
     }
 
     async function copyText(id, button) {
@@ -435,6 +487,7 @@
 
         setOutput({
           postText: data.postText,
+          noteText: data.noteText,
           shortLine: data.shortLine,
           hashtags: data.hashtags,
           keepText
